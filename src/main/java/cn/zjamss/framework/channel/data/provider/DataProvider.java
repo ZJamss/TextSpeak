@@ -7,15 +7,15 @@ import cn.zjamss.framework.channel.data.index.Index;
  * @date 2024/9/30
  * @description 数据提供器
  */
-public interface DataProvider {
+public interface DataProvider<T> {
 
     /**
      * 根据索引获取最新数据
      */
-    void acquireLastData(Index index);
+    T acquireLastData(Index index);
 
     /**
      * 根据特征值是初始化索引
      */
-    void initialIndex(String eigenvalue);
+    void initialIndex();
 }

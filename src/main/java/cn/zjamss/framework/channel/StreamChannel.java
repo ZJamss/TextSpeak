@@ -1,7 +1,7 @@
 package cn.zjamss.framework.channel;
 
 import java.io.File;
-import java.util.function.BinaryOperator;
+import java.nio.charset.Charset;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -25,7 +25,7 @@ public interface StreamChannel<T> {
      * @return
      * @date 2024/9/30
      */
-    StreamChannel<T> open(String filePath);
+    StreamChannel<T> open(String filePath, Charset charset);
 
     /**
      * 打开文件
@@ -34,17 +34,16 @@ public interface StreamChannel<T> {
      * @return
      * @date 2024/9/30
      */
-    StreamChannel<T> open(File file);
+    StreamChannel<T> open(File file, Charset charset);
 
 
     /**
      * 注册流处理器
      *
      * @param handler
-     * @return
      * @date 2024/9/30
      */
-    StreamChannel<T> register(Consumer<T> handler);
+    void register(Consumer<T> handler);
 
-    void stopOn(Function<T, Boolean> func);
+    StreamChannel<T> stopOn(Function<T, Boolean> func);
 }

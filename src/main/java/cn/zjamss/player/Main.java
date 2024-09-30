@@ -1,5 +1,7 @@
 package cn.zjamss.player;
 
+import cn.zjamss.framework.channel.StreamChannel;
+import cn.zjamss.framework.channel.impl.FileStringLineStreamChannel;
 import cn.zjamss.player.entity.config.AudioSpeakRequest;
 import cn.zjamss.player.util.SpeakUtil;
 import com.sun.xml.internal.ws.util.StringUtils;
@@ -7,6 +9,7 @@ import com.sun.xml.internal.ws.util.StringUtils;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -18,18 +21,9 @@ public class Main {
     public static void main(String[] args) throws IOException {
         URL resource = Main.class.getClassLoader().getResource("txt.txt");
         String filePath = resource.getPath();
-        int ski = 1000000;
-        try (
-                FileInputStream fis = new FileInputStream(filePath);
-                InputStreamReader isr = new InputStreamReader(fis, "GB18030");
-                BufferedReader br = new BufferedReader(isr);
-        ) {
-            br.lines().skip(ski).forEach(line -> {
-                System.out.println(line);
-                SpeakUtil.speak(AudioSpeakRequest.newRequest(line, 10));
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        StreamChannel<String> channel = new FileStringLineStreamChannel();
+        channel.open(filePath, Charset.forName("GB18030"))
+                .stopOn(Objects::isNull)
+                .register(data -> SpeakUtil.speak(AudioSpeakRequest.newRequest(data, 2)));
     }
 }

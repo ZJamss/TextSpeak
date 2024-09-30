@@ -1,6 +1,7 @@
 package cn.zjamss.framework.channel.data.index;
 
 import lombok.Data;
+import lombok.ToString;
 
 /**
  * @author ZJamss
@@ -8,6 +9,7 @@ import lombok.Data;
  * @description 数据索引
  */
 @Data
+@ToString
 public class Index {
 
     Index(String fd, Integer currentIndex, Integer length) {
