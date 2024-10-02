@@ -27,7 +27,7 @@ public abstract class AbstractStreamChannel<T> implements StreamChannel<T>, Conv
     /**
      * 是否已经添加过任务
      */
-    private volatile boolean working = false;
+    protected volatile boolean working = false;
 
     /**
      * 数据提供器
@@ -64,25 +64,28 @@ public abstract class AbstractStreamChannel<T> implements StreamChannel<T>, Conv
         if (ObjectUtil.isNull(stopConditionFunction)) {
             throw new RuntimeException("终止条件为空");
         }
-
-        // TODO 提供数据 在这怪怪的
-        provideData();
-
         executorService.execute(() -> {
+            working = true;
+            // TODO 提供数据 在这怪怪的
+            provideData();
             try {
-                T data = blockingQueue.take();
+                T data;
                 // 判断是否需要终止
                 do {
+                    // TODO 可能有没数据了还在阻塞的风险，脑子清醒了盘盘逻辑
+                    data = blockingQueue.take();
                     handler.accept(data);
                     afterHandled(data);
-                    data = blockingQueue.take();
-                } while (!stopConditionFunction.apply(data));
-                working = false;
+                } while (!stopConditionFunction.apply(data) && working);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+            } finally {
+                System.out.println("consumer thread exited");
+                working = false;
+                // TODO 线程池两个线程都结束了为什么也需要手动shutdown吗，那可能需要好好判断一下条件，后续也可以改一下不要结束
+                executorService.shutdown();
             }
         });
-        working = true;
     }
 
     /**

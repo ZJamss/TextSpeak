@@ -9,7 +9,7 @@ import cn.zjamss.player.util.SpeakUtil;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
@@ -19,11 +19,11 @@ import java.util.Objects;
  */
 public class Main {
     public static void main(String[] args) throws IOException {
-        URL resource = Main.class.getClassLoader().getResource("txt.txt");
+        URL resource = Main.class.getClassLoader().getResource("a.txt");
         String filePath = resource.getPath();
         StreamChannel<String> channel = new StringStreamChannel();
         channel.provider(FileLineDataProvider.newInstance(new File(filePath),
-                        Charset.forName("GB18030")))
+                        StandardCharsets.UTF_8))
                 .stopOn(Objects::isNull)
                 .register(data -> SpeakUtil.speak(AudioSpeakRequest.newRequest(data, 2)));
     }

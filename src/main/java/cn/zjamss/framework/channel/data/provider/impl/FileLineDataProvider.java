@@ -14,13 +14,25 @@ import java.util.stream.Stream;
 /**
  * @author ZJamss
  * @date 2024/9/30
- * @description 文件数据提供
+ * @description 文件行数据提供
  */
 public class FileLineDataProvider implements DataProvider<String> {
 
+    /**
+     * 文件实例
+     */
     private final File file;
+    /**
+     * reader
+     */
     private final LineNumberReader reader;
+    /**
+     * 文件编码
+     */
     private Charset charset = Charset.defaultCharset();
+    /**
+     * 文件读取起始行
+     */
     private int initialLineNumber = 1;
 
     private FileLineDataProvider(File file, Charset charset) {
@@ -47,6 +59,7 @@ public class FileLineDataProvider implements DataProvider<String> {
         if (IndexFactory.exist(file.getAbsolutePath())) {
             return;
         }
+        // 新建索引
         try (Stream<String> lines = Files.lines(Paths.get(file.toURI()), this.charset);) {
             Long lineCount = lines.count();
             Index index = IndexFactory.newIndexInstance(file.getAbsolutePath(), 0, lineCount.intValue());
@@ -57,7 +70,7 @@ public class FileLineDataProvider implements DataProvider<String> {
     }
 
     @Override
-    public String acquireLastData() {
+    public String acquireData() {
         Index index = IndexFactory.getIndex(file.getAbsolutePath());
         Integer currentIndex = index.getCurrentIndex();
         if (currentIndex < 0 || currentIndex > index.getLength()) {

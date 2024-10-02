@@ -15,16 +15,19 @@ public class StringStreamChannel extends AbstractStreamChannel<String> {
     protected void provideData() {
         executorService.execute(() -> {
             String data = null;
-            while (ObjectUtil.isNotNull(data = dataProvider.acquireLastData())) {
-                String dataConverted = convert(data);
-                if (StrUtil.isBlank(dataConverted)) {
-                    continue;
-                }
-                try {
+            try {
+                while (ObjectUtil.isNotNull(data = dataProvider.acquireData()) && working) {
+                    String dataConverted = convert(data);
+                    if (StrUtil.isBlank(dataConverted)) {
+                        continue;
+                    }
                     blockingQueue.put(dataConverted);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
                 }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }finally {
+                System.out.println("producer thread exited");
+                working = false;
             }
         });
     }
