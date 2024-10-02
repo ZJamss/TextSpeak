@@ -16,7 +16,7 @@ public abstract class AbstractStreamChannel<T> implements StreamChannel<T>, Conv
 
     /**
      * 阻塞队列，存放流数据
-     TODO 一条一条来索引下标不会出错，可以持久化？
+     * TODO 一条一条来索引下标不会出错，可以持久化？
      */
     protected final ArrayBlockingQueue<T> blockingQueue = new ArrayBlockingQueue<T>(1);
 
@@ -49,11 +49,12 @@ public abstract class AbstractStreamChannel<T> implements StreamChannel<T>, Conv
             try {
                 T data = blockingQueue.take();
                 // 判断是否需要终止
-                while (!stopConditionFunction.apply(data)) {
-                    data = blockingQueue.take();
+                do {
                     System.out.println(data);
+                    // TODO 还没念完就取数据了。跟不上
                     handler.accept(data);
-                }
+                    data = blockingQueue.take();
+                } while (!stopConditionFunction.apply(data));
                 working = false;
             } catch (InterruptedException e) {
                 e.printStackTrace();

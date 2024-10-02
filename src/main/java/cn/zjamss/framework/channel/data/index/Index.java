@@ -3,6 +3,8 @@ package cn.zjamss.framework.channel.data.index;
 import lombok.Data;
 import lombok.ToString;
 
+import java.io.Serializable;
+
 /**
  * @author ZJamss
  * @date 2024/9/30
@@ -10,7 +12,7 @@ import lombok.ToString;
  */
 @Data
 @ToString
-public class Index {
+public class Index implements Serializable {
 
     Index(String fd, Integer currentIndex, Integer length) {
         this.fd = fd;

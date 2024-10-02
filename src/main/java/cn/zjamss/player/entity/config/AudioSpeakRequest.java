@@ -1,6 +1,5 @@
 package cn.zjamss.player.entity.config;
 
-import com.sun.istack.internal.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
@@ -16,7 +15,6 @@ public class AudioSpeakRequest {
     /**
      * 朗读文本
      */
-    @NotNull
     private String text;
 
     /**

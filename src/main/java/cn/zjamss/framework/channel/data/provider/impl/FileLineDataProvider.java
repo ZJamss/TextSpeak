@@ -1,7 +1,5 @@
 package cn.zjamss.framework.channel.data.provider.impl;
 
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.zjamss.framework.channel.data.index.Index;
 import cn.zjamss.framework.channel.data.index.IndexFactory;
 import cn.zjamss.framework.channel.data.provider.DataProvider;
@@ -22,6 +20,7 @@ public class FileLineDataProvider implements DataProvider<String> {
     private final File file;
     private final LineNumberReader reader;
     private Charset charset = null;
+    private int initialLineNumber = 0;
 
     public FileLineDataProvider(File file) {
         this.file = file;
@@ -67,6 +66,9 @@ public class FileLineDataProvider implements DataProvider<String> {
             throw new RuntimeException("错误的currentIndex");
         }
         try {
+            while (initialLineNumber++ < currentIndex - 1) {
+                System.out.println(reader.readLine());
+            }
             reader.setLineNumber(currentIndex);
             String data = reader.readLine();
             index.setCurrentIndex(currentIndex + 1);
