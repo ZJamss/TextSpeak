@@ -1,5 +1,6 @@
 package cn.zjamss.framework.channel.data.provider.impl;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.zjamss.framework.channel.data.index.Index;
 import cn.zjamss.framework.channel.data.index.IndexFactory;
 import cn.zjamss.framework.channel.data.provider.DataProvider;
@@ -19,30 +20,27 @@ public class FileLineDataProvider implements DataProvider<String> {
 
     private final File file;
     private final LineNumberReader reader;
-    private Charset charset = null;
-    private int initialLineNumber = 0;
+    private Charset charset = Charset.defaultCharset();
+    private int initialLineNumber = 1;
 
-    public FileLineDataProvider(File file) {
-        this.file = file;
-        try {
-            this.reader = new LineNumberReader(new FileReader(file));
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        initialIndex();
-    }
-
-    public FileLineDataProvider(File file, Charset charset) {
+    private FileLineDataProvider(File file, Charset charset) {
         this.file = file;
         try {
             this.reader = new LineNumberReader(new InputStreamReader(new FileInputStream(file), charset));
-            // TODO charset判断
-            this.charset = charset;
+            if (ObjectUtil.isNotNull(charset)) {
+                this.charset = charset;
+            }
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
         initialIndex();
     }
+
+
+    public static FileLineDataProvider newInstance(File file, Charset charset) {
+        return new FileLineDataProvider(file, charset);
+    }
+
 
     @Override
     public void initialIndex() {
@@ -58,24 +56,28 @@ public class FileLineDataProvider implements DataProvider<String> {
         }
     }
 
-    // TODO 流传输？
     @Override
-    public String acquireLastData(Index index) {
+    public String acquireLastData() {
+        Index index = IndexFactory.getIndex(file.getAbsolutePath());
         Integer currentIndex = index.getCurrentIndex();
         if (currentIndex < 0 || currentIndex > index.getLength()) {
             throw new RuntimeException("错误的currentIndex");
         }
+        // TODO 有没有其他读取指定行的方法？
         try {
-            while (initialLineNumber++ < currentIndex - 1) {
-                System.out.println(reader.readLine());
+            while (initialLineNumber++ < currentIndex) {
+                reader.readLine();
             }
             reader.setLineNumber(currentIndex);
-            String data = reader.readLine();
-            index.setCurrentIndex(currentIndex + 1);
-            IndexFactory.updateIndex(index);
-            return data;
+            return reader.readLine();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void updateIndex() {
+        Index index = IndexFactory.getIndex(file.getAbsolutePath());
+        index.setCurrentIndex(index.getCurrentIndex() + 1);
+        IndexFactory.updateIndex(index);
     }
 }

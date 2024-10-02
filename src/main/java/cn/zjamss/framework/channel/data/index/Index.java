@@ -12,7 +12,7 @@ import java.io.Serializable;
  */
 @Data
 @ToString
-public class Index implements Serializable {
+public class Index implements Serializable, Cloneable {
 
     Index(String fd, Integer currentIndex, Integer length) {
         this.fd = fd;

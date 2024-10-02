@@ -1,11 +1,14 @@
 package cn.zjamss.framework.channel.data.index;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.crypto.SecureUtil;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.EOFException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,9 +29,14 @@ public class IndexFactory {
     private static Map<String, Index> indexKeeper;
 
     /**
+     * Gson
+     */
+    private static final Gson gson = new Gson();
+
+    /**
      * 索引保存路径
      */
-    private static final String SAVE_PATH = "C:\\Users\\Administrator\\Code\\project\\readText\\src\\main\\resources\\index\\index.list";
+    private static final String SAVE_PATH = "C:\\Users\\Administrator\\Code\\project\\readText\\src\\main\\resources\\index\\index.json";
 
     static {
         try {
@@ -38,10 +46,17 @@ public class IndexFactory {
             // 检查文件是否存在
             if (Files.exists(path)) {
                 // 恢复索引
-                try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(path))) {
-                    Object object = ois.readObject();
-                    if (ObjectUtil.isNotNull(object)) {
-                        indexKeeper = (HashMap<String, Index>) object;
+                try (FileReader fr = new FileReader(path.toFile())) {
+                    Long size = Files.size(path);
+                    char[] buf = new char[size.intValue()];
+                    int readLength = fr.read(buf, 0, size.intValue());
+                    if (readLength > 0) {
+                        String listJson = new String(buf, 0, readLength);
+                        HashMap<String, Index> map = gson.fromJson(listJson, new TypeToken<HashMap<String, Index>>() {
+                        });
+                        if (ObjectUtil.isNotNull(map)) {
+                            indexKeeper = map;
+                        }
                     }
                 } catch (EOFException e) {
                     // 文件为空时捕获EOFException并跳过
@@ -55,6 +70,7 @@ public class IndexFactory {
             throw new RuntimeException(e);
         }
     }
+
     /**
      * 根据特征值获取索引
      *
@@ -129,18 +145,17 @@ public class IndexFactory {
      * @date 2024/9/30
      */
     private static String decode(String eigenvalue) {
-        // TODO 特征值转码
-        return eigenvalue;
+        return SecureUtil.md5(eigenvalue);
     }
 
     /**
      * 持久化索引
+     * TODO RDB/AOP 可以每个索引单独文件
      */
     private static void save() {
         Path path = Paths.get(SAVE_PATH);
-        try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(path))) {
-            oos.writeObject(indexKeeper);
-            oos.flush();
+        try (FileWriter fw = new FileWriter(path.toFile())) {
+            fw.write(gson.toJson(indexKeeper));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

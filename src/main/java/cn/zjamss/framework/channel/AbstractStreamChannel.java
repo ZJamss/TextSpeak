@@ -1,7 +1,7 @@
 package cn.zjamss.framework.channel;
 
 import cn.hutool.core.util.ObjectUtil;
-import cn.zjamss.framework.channel.data.Converter;
+import cn.zjamss.framework.channel.data.provider.DataProvider;
 
 import java.util.concurrent.*;
 import java.util.function.Consumer;
@@ -16,14 +16,12 @@ public abstract class AbstractStreamChannel<T> implements StreamChannel<T>, Conv
 
     /**
      * 阻塞队列，存放流数据
-     * TODO 一条一条来索引下标不会出错，可以持久化？
      */
     protected final ArrayBlockingQueue<T> blockingQueue = new ArrayBlockingQueue<T>(1);
 
     /**
-     * 2线程池，一个发布一个订阅
+     * 2线程，一个发布一个订阅
      */
-    // TODO 流！
     protected final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
     /**
@@ -32,27 +30,51 @@ public abstract class AbstractStreamChannel<T> implements StreamChannel<T>, Conv
     private volatile boolean working = false;
 
     /**
+     * 数据提供器
+     */
+
+    protected DataProvider<T> dataProvider;
+
+    /**
      * 线程停止条件
      */
     private Function<T, Boolean> stopConditionFunction;
 
 
     @Override
+    public StreamChannel<T> provider(DataProvider<T> provider) {
+        this.dataProvider = provider;
+        return this;
+    }
+
+    @Override
+    public StreamChannel<T> stopOn(Function<T, Boolean> func) {
+        this.stopConditionFunction = func;
+        return this;
+    }
+
+    @Override
     public void register(Consumer<T> handler) {
         if (working) {
             throw new RuntimeException("已经注册过任务且正在执行");
         }
+        if (ObjectUtil.isNull(dataProvider)) {
+            throw new RuntimeException("终止条件为空");
+        }
         if (ObjectUtil.isNull(stopConditionFunction)) {
             throw new RuntimeException("终止条件为空");
         }
+
+        // TODO 提供数据 在这怪怪的
+        provideData();
+
         executorService.execute(() -> {
             try {
                 T data = blockingQueue.take();
                 // 判断是否需要终止
                 do {
-                    System.out.println(data);
-                    // TODO 还没念完就取数据了。跟不上
                     handler.accept(data);
+                    afterHandled(data);
                     data = blockingQueue.take();
                 } while (!stopConditionFunction.apply(data));
                 working = false;
@@ -63,12 +85,6 @@ public abstract class AbstractStreamChannel<T> implements StreamChannel<T>, Conv
         working = true;
     }
 
-    @Override
-    public StreamChannel<T> stopOn(Function<T, Boolean> func) {
-        this.stopConditionFunction = func;
-        return this;
-    }
-
     /**
      * 提供数据
      *
@@ -77,4 +93,14 @@ public abstract class AbstractStreamChannel<T> implements StreamChannel<T>, Conv
      * @date 2024/9/30
      */
     protected abstract void provideData();
+
+
+    /**
+     * 处理完数据钩子
+     *
+     * @param data
+     * @return
+     * @date 2024/10/2
+     */
+    protected abstract void afterHandled(T data);
 }

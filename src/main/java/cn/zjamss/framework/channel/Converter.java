@@ -1,4 +1,4 @@
-package cn.zjamss.framework.channel.data;
+package cn.zjamss.framework.channel;
 
 /**
  * @author ZJamss

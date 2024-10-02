@@ -1,7 +1,7 @@
 package cn.zjamss.framework.channel;
 
-import java.io.File;
-import java.nio.charset.Charset;
+import cn.zjamss.framework.channel.data.provider.DataProvider;
+
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -19,22 +19,13 @@ public interface StreamChannel<T> {
 
 
     /**
-     * 打开
+     * 指定数据提供者
      *
-     * @param filePath
+     * @param provider
      * @return
-     * @date 2024/9/30
+     * @date 2024/10/2
      */
-    StreamChannel<T> open(String filePath, Charset charset);
-
-    /**
-     * 打开文件
-     *
-     * @param file
-     * @return
-     * @date 2024/9/30
-     */
-    StreamChannel<T> open(File file, Charset charset);
+    StreamChannel<T> provider(DataProvider<T> provider);
 
 
     /**
@@ -45,5 +36,12 @@ public interface StreamChannel<T> {
      */
     void register(Consumer<T> handler);
 
+    /**
+     * 线程停止条件
+     *
+     * @param func
+     * @return
+     * @date 2024/10/2
+     */
     StreamChannel<T> stopOn(Function<T, Boolean> func);
 }
