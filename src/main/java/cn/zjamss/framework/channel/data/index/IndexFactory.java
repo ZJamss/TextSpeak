@@ -36,7 +36,7 @@ public class IndexFactory {
     /**
      * 索引保存路径
      */
-    private static final String SAVE_PATH = "C:\\Users\\Administrator\\Code\\project\\novel2audio\\src\\main\\resources\\index\\index.json";
+    private static final String SAVE_PATH = "./index.json";
 
     static {
         try {

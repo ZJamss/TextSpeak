@@ -15,6 +15,17 @@
 
 > MacOS不清楚，反正系统能识别到就行
 
+#### jar方式
+
+- 下载Release中的jar包
+- (默认已有jre环境)
+  运行 `java -jar .\novel2audio-0.1.jar src=文本路径 [ rate=播放速度(-10 - 10) volume=音量(0 - 100)](可选)
+  `
+
+> 索引文件默认与jar包同目录保存
+
+#### 代码方式，更自由
+
 - 运行Main方法:
 
 ```java
