@@ -1,8 +1,8 @@
-# 摸鱼小工具-文本阅读
+# 摸鱼小工具-文本朗读
 
 ### 背景
 
-想着写一个文本阅读的小工具上班偷偷摸鱼，结果好像写得有点开放了，不仅仅可以做这个
+想着写一个读小说的小工具上班偷偷摸鱼，结果架构好像写得有点开放了
 
 ### 特性
 
@@ -19,15 +19,15 @@
 
 ```java
 public static void main(String[] args) throws IOException {
-        URL resource = Main.class.getClassLoader().getResource("txt.txt");
-        String filePath = resource.getPath();
-        // 选择字符串流实现
-        StreamChannel<String> channel = new StringStreamChannel();
-        // 选择文件行数据提供器
-        channel.provider(FileLineDataProvider.newInstance(new File(filePath), Charset.forName("GB18030")))
-                // 当数据为null时停止获取流
-                .stopOn(Objects::isNull)
-                // 传入回调方法,注册worker获取流数据
-                .register(data -> SpeakUtil.speak(AudioSpeakRequest.newRequest(data, 2)));
-    }
+    URL resource = Main.class.getClassLoader().getResource("txt.txt");
+    String filePath = resource.getPath();
+    // 选择字符串流实现
+    StreamChannel<String> channel = new StringStreamChannel();
+    // 选择文件行数据提供器
+    channel.provider(FileLineDataProvider.newInstance(new File(filePath), Charset.forName("GB18030")))
+            // 当数据为null时停止获取流
+            .stopOn(Objects::isNull)
+            // 传入回调方法,注册worker获取流数据
+            .register(data -> SpeakUtil.speak(AudioSpeakRequest.newRequest(data, 2)));
+}
 ```
