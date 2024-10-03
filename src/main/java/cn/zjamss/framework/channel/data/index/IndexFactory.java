@@ -94,7 +94,7 @@ public class IndexFactory {
      */
     public static Index newIndexInstance(String eigenvalue, Integer currentIndex, Integer totalLength) {
         String key = decode(eigenvalue);
-        return new Index(key, currentIndex, totalLength);
+        return new Index(key, eigenvalue, currentIndex, totalLength);
     }
 
     /**

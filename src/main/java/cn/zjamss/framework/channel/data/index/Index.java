@@ -14,8 +14,9 @@ import java.io.Serializable;
 @ToString
 public class Index implements Serializable, Cloneable {
 
-    Index(String fd, Integer currentIndex, Integer length) {
+    public Index(String fd, String eigenvalue, Integer currentIndex, Integer length) {
         this.fd = fd;
+        this.eigenvalue = eigenvalue;
         this.currentIndex = currentIndex;
         this.length = length;
     }
@@ -24,6 +25,11 @@ public class Index implements Serializable, Cloneable {
      * 文件描述id
      */
     private String fd;
+
+    /**
+     * 特征值，可以是文件绝对路径或者url等等
+     */
+    private String eigenvalue;
 
     /**
      * 当前数据索引位置
