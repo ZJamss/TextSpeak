@@ -1,4 +1,4 @@
-package cn.zjamss.player;
+package cn.zjamss;
 
 import cn.zjamss.framework.channel.StreamChannel;
 import cn.zjamss.framework.channel.data.provider.impl.FileLineDataProvider;
@@ -19,6 +19,7 @@ import java.util.Objects;
  */
 public class Main {
     public static void main(String[] args) throws IOException {
+
         URL resource = Main.class.getClassLoader().getResource("txt.txt");
         String filePath = resource.getPath();
         StreamChannel<String> channel = new StringStreamChannel();
